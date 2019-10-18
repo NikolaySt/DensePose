@@ -6,6 +6,11 @@ __pycache__/
 # Shared objects
 *.so
 
+#VS
+*.user
+.vs
+.vcode
+
 # Distribution / packaging
 build/
 *.egg-info/
@@ -36,3 +41,7 @@ configs_old/*
 
 
 .nfs*
+
+#jupyter notebooks
+notebooks/.ipynb_checkpoints/
+
