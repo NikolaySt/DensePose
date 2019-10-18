@@ -36,7 +36,7 @@ from collections import deque
 from collections import OrderedDict
 import logging
 import numpy as np
-import Queue
+import queue
 import signal
 import threading
 import time

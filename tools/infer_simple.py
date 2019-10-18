@@ -109,6 +109,7 @@ def main(args):
                 model, im, None, timers=timers
             )
         logger.info('Inference time: {:.3f}s'.format(time.time() - t))
+
         for k, v in timers.items():
             logger.info(' | {}: {:.3f}s'.format(k, v.average_time))
         if i == 0:

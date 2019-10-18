@@ -12,13 +12,14 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import cPickle as pickle
+import pickle
 import hashlib
 import logging
 import os
 import re
 import sys
-import urllib2
+import urllib
+import six
 
 logger = logging.getLogger(__name__)
 
@@ -101,8 +102,11 @@ def download_url(
     Credit:
     https://stackoverflow.com/questions/2028517/python-urllib2-progress-hook
     """
-    response = urllib2.urlopen(url)
-    total_size = response.info().getheader('Content-Length').strip()
+    response = urllib.request.urlopen(url)
+    if six.PY2:
+        total_size = response.info().getheader('Content-Length').strip()
+    else:
+        total_size = response.info().get('Content-Length').strip()
     total_size = int(total_size)
     bytes_so_far = 0
 

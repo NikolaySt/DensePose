@@ -43,9 +43,12 @@ import numpy as np
 import os
 import os.path as osp
 import yaml
+import io
+import six
 
 from detectron.utils.collections import AttrDict
 from detectron.utils.io import cache_url
+import detectron.utils.env as envu
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +67,7 @@ cfg = __C
 __C.TRAIN = AttrDict()
 
 # Initialize network with weights from this .pkl file
-__C.TRAIN.WEIGHTS = b''
+__C.TRAIN.WEIGHTS = ''
 
 # Datasets to train on
 # Available dataset list: detectron.datasets.dataset_catalog.datasets()
@@ -205,7 +208,7 @@ __C.DATA_LOADER.BLOBS_QUEUE_CAPACITY = 8
 __C.TEST = AttrDict()
 
 # Initialize network with weights from this .pkl file
-__C.TEST.WEIGHTS = b''
+__C.TEST.WEIGHTS = ''
 
 # Datasets to test on
 # Available dataset list: detectron.datasets.dataset_catalog.datasets()
@@ -283,11 +286,11 @@ __C.TEST.BBOX_AUG.ENABLED = False
 
 # Heuristic used to combine predicted box scores
 #   Valid options: ('ID', 'AVG', 'UNION')
-__C.TEST.BBOX_AUG.SCORE_HEUR = b'UNION'
+__C.TEST.BBOX_AUG.SCORE_HEUR = 'UNION'
 
 # Heuristic used to combine predicted box coordinates
 #   Valid options: ('ID', 'AVG', 'UNION')
-__C.TEST.BBOX_AUG.COORD_HEUR = b'UNION'
+__C.TEST.BBOX_AUG.COORD_HEUR = 'UNION'
 
 # Horizontal flip at the original scale (id transform)
 __C.TEST.BBOX_AUG.H_FLIP = False
@@ -324,7 +327,7 @@ __C.TEST.MASK_AUG.ENABLED = False
 # Heuristic used to combine mask predictions
 # SOFT prefix indicates that the computation is performed on soft masks
 #   Valid options: ('SOFT_AVG', 'SOFT_MAX', 'LOGIT_AVG')
-__C.TEST.MASK_AUG.HEUR = b'SOFT_AVG'
+__C.TEST.MASK_AUG.HEUR = 'SOFT_AVG'
 
 # Horizontal flip at the original scale (id transform)
 __C.TEST.MASK_AUG.H_FLIP = False
@@ -359,7 +362,7 @@ __C.TEST.KPS_AUG.ENABLED = False
 
 # Heuristic used to combine keypoint predictions
 #   Valid options: ('HM_AVG', 'HM_MAX')
-__C.TEST.KPS_AUG.HEUR = b'HM_AVG'
+__C.TEST.KPS_AUG.HEUR = 'HM_AVG'
 
 # Horizontal flip at the original scale (id transform)
 __C.TEST.KPS_AUG.H_FLIP = False
@@ -391,7 +394,7 @@ __C.TEST.SOFT_NMS = AttrDict()
 # Use soft NMS instead of standard NMS if set to True
 __C.TEST.SOFT_NMS.ENABLED = False
 # See soft NMS paper for definition of these options
-__C.TEST.SOFT_NMS.METHOD = b'linear'
+__C.TEST.SOFT_NMS.METHOD = 'linear'
 __C.TEST.SOFT_NMS.SIGMA = 0.5
 # For the soft NMS overlap threshold, we simply use TEST.NMS
 
@@ -409,7 +412,7 @@ __C.TEST.BBOX_VOTE.VOTE_TH = 0.8
 
 # The method used to combine scores when doing bounding box voting
 # Valid options include ('ID', 'AVG', 'IOU_AVG', 'GENERALIZED_AVG', 'QUASI_SUM')
-__C.TEST.BBOX_VOTE.SCORING_METHOD = b'ID'
+__C.TEST.BBOX_VOTE.SCORING_METHOD = 'ID'
 
 # Hyperparameter used by the scoring method (it has different meanings for
 # different methods)
@@ -424,13 +427,13 @@ __C.MODEL = AttrDict()
 # The type of model to use
 # The string must match a function in the modeling.model_builder module
 # (e.g., 'generalized_rcnn', 'mask_rcnn', ...)
-__C.MODEL.TYPE = b''
+__C.MODEL.TYPE = ''
 
 # The backbone conv body to use
 # The string must match a function that is imported in modeling.model_builder
 # (e.g., 'FPN.add_fpn_ResNet101_conv5_body' to specify a ResNet-101-FPN
 # backbone)
-__C.MODEL.CONV_BODY = b''
+__C.MODEL.CONV_BODY = ''
 
 # Number of classes in the dataset; must be set
 # E.g., 81 for COCO (80 foreground + 1 background)
@@ -472,7 +475,7 @@ __C.MODEL.RPN_ONLY = False
 
 # Caffe2 net execution type
 # Use 'prof_dag' to get profiling statistics
-__C.MODEL.EXECUTION_TYPE = b'dag'
+__C.MODEL.EXECUTION_TYPE = 'dag'
 
 
 # ---------------------------------------------------------------------------- #
@@ -556,7 +559,7 @@ __C.SOLVER.BASE_LR = 0.001
 
 # Schedule type (see functions in utils.lr_policy for options)
 # E.g., 'step', 'steps_with_decay', ...
-__C.SOLVER.LR_POLICY = b'step'
+__C.SOLVER.LR_POLICY = 'step'
 
 # Some LR Policies (by example):
 # 'step'
@@ -627,7 +630,7 @@ __C.FAST_RCNN = AttrDict()
 # The type of RoI head to use for bounding box classification and regression
 # The string must match a function this is imported in modeling.model_builder
 # (e.g., 'head_builder.add_roi_2mlp_head' to specify a two hidden layer MLP)
-__C.FAST_RCNN.ROI_BOX_HEAD = b''
+__C.FAST_RCNN.ROI_BOX_HEAD = ''
 
 # Hidden layer dimension when using an MLP for the RoI box head
 __C.FAST_RCNN.MLP_HEAD_DIM = 1024
@@ -639,7 +642,7 @@ __C.FAST_RCNN.NUM_STACKED_CONVS = 4
 
 # RoI transformation function (e.g., RoIPool or RoIAlign)
 # (RoIPoolF is the same as RoIPool; ignore the trailing 'F')
-__C.FAST_RCNN.ROI_XFORM_METHOD = b'RoIPoolF'
+__C.FAST_RCNN.ROI_XFORM_METHOD = 'RoIPoolF'
 
 # Number of grid sampling points in RoIAlign (usually use 2)
 # Only applies to RoIAlign
@@ -729,13 +732,13 @@ __C.MRCNN = AttrDict()
 # The type of RoI head to use for instance mask prediction
 # The string must match a function this is imported in modeling.model_builder
 # (e.g., 'mask_rcnn_heads.ResNet_mask_rcnn_fcn_head_v1up4convs')
-__C.MRCNN.ROI_MASK_HEAD = b''
+__C.MRCNN.ROI_MASK_HEAD = ''
 
 # Resolution of mask predictions
 __C.MRCNN.RESOLUTION = 14
 
 # RoI transformation function and associated options
-__C.MRCNN.ROI_XFORM_METHOD = b'RoIAlign'
+__C.MRCNN.ROI_XFORM_METHOD = 'RoIAlign'
 
 # RoI transformation function (e.g., RoIPool or RoIAlign)
 __C.MRCNN.ROI_XFORM_RESOLUTION = 7
@@ -757,7 +760,7 @@ __C.MRCNN.UPSAMPLE_RATIO = 1
 __C.MRCNN.USE_FC_OUTPUT = False
 
 # Weight initialization method for the mask head and mask output layers
-__C.MRCNN.CONV_INIT = b'GaussianFill'
+__C.MRCNN.CONV_INIT = 'GaussianFill'
 
 # Use class specific mask predictions if True (otherwise use class agnostic mask
 # predictions)
@@ -778,7 +781,7 @@ __C.KRCNN = AttrDict()
 # The type of RoI head to use for instance keypoint prediction
 # The string must match a function this is imported in modeling.model_builder
 # (e.g., 'keypoint_rcnn_heads.add_roi_pose_head_v1convX')
-__C.KRCNN.ROI_KEYPOINTS_HEAD = b''
+__C.KRCNN.ROI_KEYPOINTS_HEAD = ''
 
 # Output size (and size loss is computed on), e.g., 56x56
 __C.KRCNN.HEATMAP_SIZE = -1
@@ -813,17 +816,17 @@ __C.KRCNN.CONV_HEAD_DIM = 256
 # Conv kernel size used in the keypoint head
 __C.KRCNN.CONV_HEAD_KERNEL = 3
 # Conv kernel weight filling function
-__C.KRCNN.CONV_INIT = b'GaussianFill'
+__C.KRCNN.CONV_INIT = 'GaussianFill'
 
 # Use NMS based on OKS if True
 __C.KRCNN.NMS_OKS = False
 
 # Source of keypoint confidence
-#   Valid options: ('bbox', 'logit', 'prob')
-__C.KRCNN.KEYPOINT_CONFIDENCE = b'bbox'
+#   Valid options: ('bbox', 'logit', 'pro')
+__C.KRCNN.KEYPOINT_CONFIDENCE = 'bbox'
 
 # Standard ROI XFORM options (see FAST_RCNN or MRCNN options)
-__C.KRCNN.ROI_XFORM_METHOD = b'RoIAlign'
+__C.KRCNN.ROI_XFORM_METHOD = 'RoIAlign'
 __C.KRCNN.ROI_XFORM_RESOLUTION = 7
 __C.KRCNN.ROI_XFORM_SAMPLING_RATIO = 0
 
@@ -854,7 +857,7 @@ __C.KRCNN.NORMALIZE_BY_VISIBLE_KEYPOINTS = True
 __C.BODY_UV_RCNN = AttrDict()
 
 # The type of RoI head to use for body UV prediction
-__C.BODY_UV_RCNN.ROI_HEAD = b''
+__C.BODY_UV_RCNN.ROI_HEAD = ''
 
 # Output size (and size loss is computed on), e.g., 56x56
 __C.BODY_UV_RCNN.HEATMAP_SIZE = -1
@@ -883,10 +886,10 @@ __C.BODY_UV_RCNN.CONV_HEAD_DIM = 256
 # Conv kernel size used in the body UV head
 __C.BODY_UV_RCNN.CONV_HEAD_KERNEL = 3
 # Conv kernel weight filling function
-__C.BODY_UV_RCNN.CONV_INIT = b'GaussianFill'
+__C.BODY_UV_RCNN.CONV_INIT = 'GaussianFill'
 
 # Standard ROI XFORM options (see FAST_RCNN or MRCNN options)
-__C.BODY_UV_RCNN.ROI_XFORM_METHOD = b'RoIAlign'
+__C.BODY_UV_RCNN.ROI_XFORM_METHOD = 'RoIAlign'
 __C.BODY_UV_RCNN.ROI_XFORM_RESOLUTION = 7
 __C.BODY_UV_RCNN.ROI_XFORM_SAMPLING_RATIO = 0
 
@@ -924,11 +927,11 @@ __C.RESNETS.WIDTH_PER_GROUP = 64
 __C.RESNETS.STRIDE_1X1 = True
 
 # Residual transformation function
-__C.RESNETS.TRANS_FUNC = b'bottleneck_transformation'
+__C.RESNETS.TRANS_FUNC = 'bottleneck_transformation'
 # ResNet's stem function (conv1 and pool1)
-__C.RESNETS.STEM_FUNC = b'basic_bn_stem'
+__C.RESNETS.STEM_FUNC = 'basic_bn_stem'
 # ResNet's shortcut function
-__C.RESNETS.SHORTCUT_FUNC = b'basic_bn_shortcut'
+__C.RESNETS.SHORTCUT_FUNC = 'basic_bn_shortcut'
 
 # Apply dilation in stage "res5"
 __C.RESNETS.RES5_DILATION = 1
@@ -986,10 +989,10 @@ __C.EPS = 1e-14
 __C.ROOT_DIR = os.getcwd()
 
 # Output basedir
-__C.OUTPUT_DIR = b'/tmp'
+__C.OUTPUT_DIR = '/tmp'
 
 # Name (or path to) the matlab executable
-__C.MATLAB = b'matlab'
+__C.MATLAB = 'matla'
 
 # Reduce memory usage with memonger gradient blob sharing
 __C.MEMONGER = True
@@ -1013,11 +1016,11 @@ __C.EXPECTED_RESULTS = []
 __C.EXPECTED_RESULTS_RTOL = 0.1
 __C.EXPECTED_RESULTS_ATOL = 0.005
 # Set to send email in case of an EXPECTED_RESULTS failure
-__C.EXPECTED_RESULTS_EMAIL = b''
+__C.EXPECTED_RESULTS_EMAIL = ''
 
 # Models and proposals referred to by URL are downloaded to a local cache
 # specified by DOWNLOAD_CACHE
-__C.DOWNLOAD_CACHE = b'/tmp/detectron-download-cache'
+__C.DOWNLOAD_CACHE = '/tmp/detectron-download-cache'
 
 
 # ---------------------------------------------------------------------------- #
@@ -1148,20 +1151,21 @@ def get_output_dir(datasets, training=True):
         os.makedirs(outdir)
     return outdir
 
-
 def load_cfg(cfg_to_load):
     """Wrapper around yaml.load used for maintaining backward compatibility"""
-    assert isinstance(cfg_to_load, (file, basestring)), \
-        'Expected {} or {} got {}'.format(file, basestring, type(cfg_to_load))
-    if isinstance(cfg_to_load, file):
+    file_types = [file, io.IOBase] if six.PY2 else [io.IOBase]  # noqa false positive
+    expected_types = tuple(file_types + list(six.string_types))
+    assert isinstance(cfg_to_load, expected_types), \
+        'Expected one of {}, got {}'.format(expected_types, type(cfg_to_load))
+    if isinstance(cfg_to_load, tuple(file_types)):
         cfg_to_load = ''.join(cfg_to_load.readlines())
-    if isinstance(cfg_to_load, basestring):
-        for old_module, new_module in iteritems(_RENAMED_MODULES):
-            # yaml object encoding: !!python/object/new:<module>.<object>
-            old_module, new_module = 'new:' + old_module, 'new:' + new_module
-            cfg_to_load = cfg_to_load.replace(old_module, new_module)
-    return yaml.load(cfg_to_load)
-
+    for old_module, new_module in iteritems(_RENAMED_MODULES):
+        # yaml object encoding: !!python/object/new:<module>.<object>
+        old_module, new_module = 'new:' + old_module, 'new:' + new_module
+        cfg_to_load = cfg_to_load.replace(old_module, new_module)
+    # Import inline due to a circular dependency between env.py and config.py    
+    return envu.yaml_load(cfg_to_load)
+   
 
 def merge_cfg_from_file(cfg_filename):
     """Load a yaml config file and merge it into the global config."""

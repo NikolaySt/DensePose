@@ -14,7 +14,7 @@
 
 """Python implementation of the PASCAL VOC devkit's AP evaluation code."""
 
-import cPickle
+import pickle
 import logging
 import numpy as np
 import os
