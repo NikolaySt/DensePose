@@ -11,7 +11,7 @@
     <Name>Densepose</Name>
     <RootNamespace>Densepose</RootNamespace>
     <IsWindowsApplication>False</IsWindowsApplication>
-    <InterpreterId>CondaEnv|CondaEnv|Coco</InterpreterId>
+    <InterpreterId>MSBuild|WPy64|$(MSBuildProjectFullPath)</InterpreterId>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
     <CommandLineArguments>--cfg configs/DensePose_ResNet50_FPN_s1x-e2e.yaml --output-dir DensePoseData/infer_out/ --image-ext jpg --wts https://dl.fbaipublicfiles.com/densepose/DensePose_ResNet50_FPN_s1x-e2e.pkl DensePoseData/demo_data/demo_im_1.jpg</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
@@ -139,9 +139,6 @@
     <Compile Include="tools\infer_simple.py" />
   </ItemGroup>
   <ItemGroup>
-    <InterpreterReference Include="CondaEnv|CondaEnv|Coco" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="configs\DensePoseKeyPointsMask_ResNet50_FPN_s1x-e2e.yaml" />
     <Content Include="configs\DensePose_ResNet101_FPN.yaml" />
     <Content Include="configs\DensePose_ResNet101_FPN_32x8d_s1x-e2e.yaml" />
@@ -263,6 +260,17 @@
     <Content Include="detectron\utils\__pycache__\__init__.cpython-36.pyc" />
     <Content Include="detectron\__pycache__\__init__.cpython-36.pyc" />
     <Content Include="requirements.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Interpreter Include="..\WPy64\">
+      <Id>WPy64</Id>
+      <Version>3.6</Version>
+      <Description>WPy64</Description>
+      <InterpreterPath>python-3.6.8.amd64\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>python-3.6.8.amd64\pythonw.exe</WindowsInterpreterPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X64</Architecture>
+    </Interpreter>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
