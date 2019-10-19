@@ -989,7 +989,7 @@ __C.EPS = 1e-14
 __C.ROOT_DIR = os.getcwd()
 
 # Output basedir
-__C.OUTPUT_DIR = '/tmp'
+__C.OUTPUT_DIR = 'tmp'
 
 # Name (or path to) the matlab executable
 __C.MATLAB = 'matla'
@@ -1020,7 +1020,7 @@ __C.EXPECTED_RESULTS_EMAIL = ''
 
 # Models and proposals referred to by URL are downloaded to a local cache
 # specified by DOWNLOAD_CACHE
-__C.DOWNLOAD_CACHE = '/tmp/detectron-download-cache'
+__C.DOWNLOAD_CACHE = 'tmp/detectron-download-cache'
 
 
 # ---------------------------------------------------------------------------- #
