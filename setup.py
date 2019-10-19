@@ -21,7 +21,7 @@ _NP_INCLUDE_DIRS = np.get_include()
 # Extension modules
 ext_modules = [
     Extension(
-        name='detectron.utils.cython_bbox',
+        name='cython_bbox',
         sources=[
             'detectron/utils/cython_bbox.pyx'
         ],
@@ -32,7 +32,7 @@ ext_modules = [
         ]
     ),
     Extension(
-        name='detectron.utils.cython_nms',
+        name='cython_nms',
         sources=[
             'detectron/utils/cython_nms.pyx'
         ],
