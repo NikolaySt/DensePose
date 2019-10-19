@@ -6,14 +6,15 @@
     <ProjectHome>.</ProjectHome>
     <StartupFile>tools\infer_simple.py</StartupFile>
     <SearchPath>detectron</SearchPath>
-    <WorkingDirectory>.</WorkingDirectory>
+    <WorkingDirectory>
+    </WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Densepose</Name>
     <RootNamespace>Densepose</RootNamespace>
     <IsWindowsApplication>False</IsWindowsApplication>
     <InterpreterId>MSBuild|WPy64|$(MSBuildProjectFullPath)</InterpreterId>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>--cfg configs/DensePose_ResNet50_FPN_s1x-e2e.yaml --output-dir DensePoseData/infer_out/ --image-ext jpg --wts https://dl.fbaipublicfiles.com/densepose/DensePose_ResNet50_FPN_s1x-e2e.pkl DensePoseData/demo_data/demo_im_1.jpg</CommandLineArguments>
+    <CommandLineArguments>--cfg configs/DensePose_ResNet50_FPN_s1x-e2e.yaml --output-dir DensePoseData/infer_out/ --image-ext jpg --wts https://dl.fbaipublicfiles.com/densepose/DensePose_ResNet50_FPN_s1x-e2e.pkl DensePoseData/demo_data/demo_im.jpg</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -136,7 +137,11 @@
     <Compile Include="detectron\utils\__init__.py" />
     <Compile Include="detectron\__init__.py" />
     <Compile Include="setup.py" />
+    <Compile Include="tools\infer.py" />
     <Compile Include="tools\infer_simple.py" />
+    <Compile Include="tools\test_net.py" />
+    <Compile Include="tools\train_net.py" />
+    <Compile Include="tools\visualize_results.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="configs\DensePoseKeyPointsMask_ResNet50_FPN_s1x-e2e.yaml" />
