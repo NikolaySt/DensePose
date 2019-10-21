@@ -74,16 +74,18 @@ def get_detectron_ops_lib():
                 return ops_path
     raise Exception('Detectron ops lib not found')
 
-
 def get_custom_ops_lib():
-    """Retrieve custom ops library."""
-    det_dir, _ = os.path.split(os.path.dirname(__file__))
-    root_dir, _ = os.path.split(det_dir)
-    custom_ops_lib = os.path.join(
-        root_dir, 'build/libcaffe2_detectron_custom_ops_gpu.so')
-    assert os.path.exists(custom_ops_lib), \
-        'Custom ops lib not found at \'{}\''.format(custom_ops_lib)
-    return custom_ops_lib
+    return get_detectron_ops_lib()
+
+#def get_custom_ops_lib():
+#    """Retrieve custom ops library."""
+#    det_dir, _ = os.path.split(os.path.dirname(__file__))
+#    root_dir, _ = os.path.split(det_dir)
+#    custom_ops_lib = os.path.join(
+#        root_dir, 'build/libcaffe2_detectron_custom_ops_gpu.so')
+#    assert os.path.exists(custom_ops_lib), \
+#        'Custom ops lib not found at \'{}\''.format(custom_ops_lib)
+#    return custom_ops_lib
 
 
 # YAML load/dump function aliases
